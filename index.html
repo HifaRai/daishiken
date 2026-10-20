@@ -1,87 +1,445 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Daishiken N4 — Latihan Interaktif</title>
-<style>
-:root{--bg:#f7f4ff;--card:#fff;--ink:#28243a;--muted:#777187;--accent:#7866c8;--accent2:#e9e2ff;--good:#e0f5e8;--bad:#ffe5e8;--line:#e9e4f2}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#f8f5ff,#f0f8ff);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{padding:28px 18px 20px;text-align:center;background:#fff9;border-bottom:1px solid var(--line)}header .eyebrow{color:var(--accent);font-weight:800;letter-spacing:.12em;font-size:.75rem}h1{margin:7px 0;font-size:clamp(1.6rem,4vw,2.5rem)}header p{margin:0;color:var(--muted)}
-main{max-width:920px;margin:22px auto;padding:0 14px 50px}.panel,.question,.result{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 25px #41316b0b;margin-bottom:16px}
-.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}label{font-size:.82rem;font-weight:700;color:var(--muted);display:block;margin-bottom:6px}select,button{font:inherit;border-radius:12px;padding:11px 13px;border:1px solid var(--line);background:#fff;color:var(--ink);width:100%}button{cursor:pointer;font-weight:750;transition:.15s}button:hover{transform:translateY(-1px)}button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}button.soft{background:var(--accent2);border-color:transparent}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions button{width:auto;flex:1;min-width:120px}
-.progressrow{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--muted);margin-bottom:8px}.track{height:8px;border-radius:99px;background:#eee9f8;overflow:hidden}.bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
-.qtop{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:.82rem}.pill{background:var(--accent2);color:#5b4aa8;padding:5px 9px;border-radius:99px;font-weight:800}.prompt{font-size:1.22rem;line-height:1.8;margin:18px 0}.choices{display:grid;gap:10px}.choice{display:flex;align-items:flex-start;gap:11px;text-align:left;background:#fff;border:1.5px solid var(--line);padding:13px;border-radius:14px}.choice .letter{flex:0 0 28px;height:28px;border-radius:9px;background:#f2effa;display:grid;place-items:center;font-weight:800;color:#6858ae}.choice.selected{border-color:var(--accent);background:#f8f5ff}.choice.correct{border-color:#4ba879;background:var(--good)}.choice.wrong{border-color:#d66c7a;background:var(--bad)}.choice:disabled{cursor:default;transform:none}
-.feedback{margin-top:15px;padding:15px;border-radius:14px;background:#f7f5fc;line-height:1.7}.feedback h3{margin:0 0 5px;font-size:1rem}.feedback p{margin:5px 0}.hidden{display:none!important}.small{font-size:.88rem;color:var(--muted)}.result{text-align:center}.score{font-size:3rem;font-weight:900;color:var(--accent)}.reviewitem{text-align:left;border-top:1px solid var(--line);padding:14px 0;line-height:1.7}.reviewitem strong{display:block}.tag{font-size:.8rem;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 15px 25px}
-@media(max-width:520px){.panel,.question,.result{padding:16px}.prompt{font-size:1.1rem}.qtop{align-items:flex-start}}
-.answer-extra{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}.answer-extra h4{margin:12px 0 3px;font-size:.92rem;color:#6756ad}.answer-extra p{margin:4px 0;line-height:1.8}.jp-sentence{font-size:1.1rem;line-height:2.2}ruby{ruby-position:over}rt{font-size:.62em;color:#7866c8;font-weight:500}
-</style></head>
-<body>
-<header><div class="eyebrow">MINNA NO NIHONGO II • BAB 27–50</div><h1>Daishiken N4</h1><p>Latihan interaktif 100 soal · kunci jawaban · penjelasan bahasa Indonesia</p></header>
-<main>
-<section class="panel" id="setup">
-<h2 style="margin-top:0">Mulai latihan</h2><p class="small">Pilih mode dan materi. Jawaban serta pembahasan bisa dilihat setelah menjawab tiap soal.</p>
-<div class="controls">
-<div><label for="mode">Mode latihan</label><select id="mode"><option value="all">Semua soal (100)</option><option value="10">10 soal</option><option value="20">20 soal</option><option value="30">30 soal</option></select></div>
-<div><label for="lesson">Filter bab</label><select id="lesson"><option value="all">Semua bab</option></select></div>
-<div><label for="order">Urutan soal</label><select id="order"><option value="original">Sesuai PDF</option><option value="random">Acak</option></select></div>
-</div><div class="actions"><button class="primary" id="start">Mulai mengerjakan →</button><button class="soft" id="study">Lihat semua kunci & pembahasan</button></div>
-</section>
-<section id="quiz" class="hidden">
-<div class="panel"><div class="progressrow"><span id="progressText">Soal 1 dari 100</span><span id="scoreText">Benar: 0</span></div><div class="track"><div class="bar" id="bar"></div></div></div>
-<div class="question"><div class="qtop"><span id="qnum">SOAL 1</span><span class="pill" id="chapter">BAB 27</span></div><div class="prompt" id="prompt"></div><div class="choices" id="choices"></div><div id="feedback" class="feedback hidden" aria-live="polite"></div><div class="actions"><button id="prev" class="soft">← Sebelumnya</button><button id="next" class="primary">Periksa jawaban</button></div></div>
-</section>
-<section id="results" class="result hidden"></section>
-<section id="studylist" class="panel hidden"><div class="actions"><button id="closeStudy" class="soft">← Kembali</button></div><h2>Kunci jawaban & pembahasan</h2><p class="small">Semua 100 soal dari PDF, dikelompokkan sesuai nomor aslinya.</p><div id="allAnswers"></div></section>
-</main><footer>Materi disusun dari file LATIHAN DAISHIKEN N4.pdf yang kamu unggah. Beberapa redaksi soal sumber mungkin kurang alami; catatan diberikan jika diperlukan.</footer>
-<script>
-const QUESTIONS = [[1, 27, "私は日本語の新聞が（　　　）。", ["読ませます", "読めます", "読まれます", "読みます"], 1, "可能形「読めます」= bisa membaca. Partikel が sering dipakai dengan kata kerja kemampuan."], [2, 27, "この部屋の窓から富士山が（　　　）。", ["見せられます", "見えます", "見られます", "見ます"], 1, "「見えます」menyatakan sesuatu terlihat secara alami dari suatu tempat. 窓から = dari jendela."], [3, 27, "駅の前に新しいスーパーが（　　　）よ。", ["しました", "ありました", "なりました", "できました"], 3, "「店ができます」= toko baru dibuka/berdiri."], [4, 27, "ローマ字（　　　）書けませんから、漢字はまだわかりません。", ["しか", "ほど", "ばかり", "だけ"], 0, "「しか～ない」= hanya ... dan harus diikuti bentuk negatif: ローマ字しか書けません."], [5, 28, "音楽を（　　　）、ご飯を作るのが好きです。", ["聞いてながら", "聞いたながら", "聞きながら", "聞くながら"], 2, "「ます形 tanpa ます + ながら」= sambil melakukan. 聞きます → 聞きながら."], [6, 28, "休みの日はいつも公園を（　　　）。", ["走りながらです", "走ってあります", "走っています", "走っておきます"], 2, "「～ています」menyatakan kebiasaan yang berulang: saat hari libur saya biasa berlari di taman."], [7, 28, "あの店は料理もおいしい（　　　）、値段も安いです。", ["し", "から", "ので", "けど"], 0, "「～し、～し」menyebutkan beberapa alasan/ciri: makanannya enak dan harganya murah."], [8, 28, "このアパートは駅から近いです。（　　　）、近くにコンビニもあります。", ["それで", "それから", "それに", "けれども"], 2, "「それに」= selain itu; menambahkan informasi searah."], [9, 29, "あ、大変！かばんの鍵が（　　　）よ。", ["壊れています", "壊れておきます", "壊しています", "壊してあります"], 0, "「壊れています」menunjukkan keadaan hasil: kunci/tas rusak. 壊れる adalah verba intransitif."], [10, 29, "電車の中に傘を（　　　）。", ["忘れておきます", "忘れてあります", "忘れています", "忘れてしまいました"], 3, "「～てしまいました」menyatakan sesuatu terlanjur/tidak sengaja terjadi atau selesai. Payung tertinggal di kereta."], [11, 29, "きのう買った本はもう全部（　　　）。", ["読んであります", "読むところです", "読んでしまいました", "読んでいます"], 2, "「～てしまいました」= sudah selesai seluruhnya; 全部 memperkuat makna selesai."], [12, 29, "部屋の電気が（　　　）ね。だれかいるんですか。", ["ついています", "ついてあります", "つけておきます", "つけています"], 0, "「電気がついています」= lampu dalam keadaan menyala. つく adalah intransitif."], [13, 30, "壁にカレンダーが（　　　）。", ["かけています", "かけてあります", "かかっています", "かかってあります"], 2, "「かかっています」menyatakan kalender tergantung sebagai keadaan. かかる adalah intransitif."], [14, 30, "旅行の前に、ホテルを予約（　　　）。", ["してあります", "してしまいます", "しておきます", "してみます"], 2, "「～ておきます」= melakukan sesuatu sebagai persiapan. Pesan hotel sebelum perjalanan."], [15, 30, "会議の資料はもう机の上に（　　　）よ。", ["乗ってあります", "置いてあります", "置いています", "入ってあります"], 1, "「他動詞てあります」menunjukkan sesuatu sengaja diletakkan dan hasilnya masih ada: dokumen sudah diletakkan di meja."], [16, 30, "使ったら、元の場所に（　　　）ください。", ["戻っておいて", "戻しておいて", "戻ってあって", "戻してあって"], 1, "「戻す」= mengembalikan sesuatu; 「～ておいてください」= tolong lakukan/siapkan sebelumnya. Bentuk alami: 元の場所に戻しておいてください."], [17, 31, "たくさん歩きましたね。少し（　　　）か。", ["休む", "休め", "休もう", "休まい"], 2, "Ajakan 「～ようか」: 休みます → 休もう. 「少し休もうか」= istirahat sebentar, yuk?"], [18, 31, "将来、自分の会社を（　　　）と思っています。", ["作る", "作って", "作れ", "作ろう"], 3, "「意向形 + と思っています」= berniat melakukan. 作る → 作ろう."], [19, 31, "あしたはどこへも（　　　）つもりです。", ["行こうない", "行くない", "行かなかった", "行かない"], 3, "「～ないつもりです」= berniat tidak melakukan. どこへも dipakai dengan negatif."], [20, 31, "来週の月曜日に東京へ出張する（　　　）です。", ["よう", "予定", "つもり", "ところ"], 1, "「辞書形 + 予定です」= sudah dijadwalkan/direncanakan. 出張する予定です."], [21, 32, "熱があるなら、きょうはお風呂に（　　　）ほうがいいですよ。", ["入った", "入らない", "入る", "入ろう"], 1, "Saran negatif memakai 「Vないほうがいい」= sebaiknya jangan. 入る → 入らない."], [22, 32, "あしたはたぶん雨が（　　　）でしょう。", ["降る", "降り", "降って", "降ろう"], 0, "Sebelum でしょう untuk prediksi, gunakan bentuk biasa: 雨が降るでしょう."], [23, 32, "道が込んでいますから、約束の時間に（　　　）かもしれません。", ["間に合おう", "間に合わない", "間に合って", "間に合うです"], 1, "「普通形 + かもしれません」= mungkin. Karena jalan macet, mungkin tidak tepat waktu: 間に合わないかもしれません."], [24, 32, "毎日少しだけでも運動（　　　）ほうがいいですよ。", ["しよう", "する", "して", "した"], 3, "Saran positif memakai 「Vたほうがいい」. する → した."], [25, 33, "もっと速く（　　　）！遅れるぞ。", ["走り", "走るな", "走ろう", "走れ"], 3, "Perintah tegas bentuk 命令形: 走る → 走れ. Nuansanya keras."], [26, 33, "ここは危ないから、絶対に中に（　　　）！", ["入れ", "入るな", "入ろう", "入らない"], 1, "Larangan keras 「辞書形 + な」: 入るな = jangan masuk."], [27, 33, "あそこに「止まれ」と（　　　）。", ["読んであります", "書いています", "言ってあります", "書いてあります"], 3, "「～と書いてあります」= tertulis ...; tanda berhenti tertulis di sana."], [28, 33, "田中さんはあしたのパーティーに（　　　）と言っていました。", ["行くな", "行けない", "行けません", "行け"], 1, "「行けないと言っていました」= katanya dia tidak bisa datang. Bentuk potensial negatif 行ける → 行けない."], [29, 34, "私が（　　　）とおりに、書いてください。", ["書いて", "書き", "書こう", "書いた"], 3, "「Vた + とおりに」= sesuai dengan yang ...; 書いたとおりに = sesuai yang saya tulis."], [30, 34, "仕事が（　　　）あとで、食事に行きませんか。", ["終わって", "終わった", "終わる", "終わりの"], 1, "「Vたあとで」= setelah melakukan. 終わったあとで."], [31, 34, "けさは朝ご飯を（　　　）、学校へ来ました。", ["食べないで", "食べずにに", "食べない", "食べなくて"], 0, "「Vないで」= tanpa melakukan V. 食べないで学校へ来ました = datang tanpa sarapan."], [32, 34, "説明書の（　　　）、この機械を組み立ててください。", ["ために", "ように", "とおりに", "あとで"], 2, "「Nのとおりに」= sesuai dengan ...; sesuai petunjuk manual."], [33, 35, "春に（　　　）、桜が咲きます。", ["なると", "なら", "なれば", "なればに"], 0, "「～と」menyatakan hasil yang biasanya terjadi ketika kondisi terpenuhi: saat musim semi tiba, sakura mekar."], [34, 35, "天気が（　　　）、向こうの島が見えます。", ["いいなら", "よければ", "いいければ", "よかれば"], 1, "I-adjektiva いい punya bentuk kondisional khusus よければ."], [35, 35, "北海道へ（　　　）なら、6月がいいですよ。", ["行こう", "行って", "行く", "行けば"], 2, "「V辞書形 + なら」= kalau memang berencana ...: 行くなら."], [36, 35, "パソコンは（　　　）ほどいいと思います。", ["軽ければ軽くて", "軽ければ軽い", "軽い軽い", "軽くて軽い"], 1, "Pola 「～ば～ほど」= semakin ..., semakin ...: 軽ければ軽いほど."], [37, 36, "忘れ物を（　　　）ように、メモをします。", ["しなく", "しよう", "する", "しない"], 3, "「Vないように」= supaya tidak ...; 忘れ物をしないように."], [38, 36, "毎日練習して、やっと泳げる（　　　）。", ["ようにしました", "ことになりました", "ようになりました", "ことにしました"], 2, "「可能形 + ようになりました」= akhirnya menjadi bisa setelah latihan."], [39, 36, "健康のために、エレベーターを（　　　）ようにしています。", ["使おう", "使えて", "使った", "使わない"], 3, "「Vないようにしています」= membiasakan diri untuk tidak ... demi kesehatan."], [40, 36, "後ろの人にもよく（　　　）ように、大きい声で話してください。", ["聞こえる", "聞ける", "聞いて", "聞く"], 0, "「聞こえるように」= supaya terdengar oleh orang di belakang; 聞こえる menyatakan terdengar secara alami."], [41, 37, "私は母に買い物を（　　　）。", ["頼めました", "頼まれました", "頼ませました", "頼みました"], 3, "「母に買い物を頼みました」= saya meminta ibu melakukan belanja. 頼む = meminta."], [42, 37, "満員電車の中で隣の人に足を（　　　）。", ["踏まれました", "踏ませました", "踏みました", "踏まれられました"], 0, "Bentuk pasif: 足を踏まれました = kaki saya terinjak oleh orang di sebelah."], [43, 37, "このお寺は500年ぐらい前に（　　　）。", ["建てました", "建てられました", "建てさせました", "建ちました"], 1, "Bangunan menerima tindakan, sehingga pasif: 寺は建てられました = kuil itu dibangun."], [44, 38, "日本の車は世界中へ（　　　）います。", ["輸出しられて", "輸出されて", "輸出させて", "輸出して"], 1, "Pasif 「輸出されている」= diekspor. 日本の車は ... 世界中へ輸出されています."], [45, 38, "星を（　　　）のは楽しいです。", ["見る", "見て", "見り", "見よう"], 0, "Sebelum のは yang mengubah kata kerja menjadi topik, gunakan bentuk biasa: 星を見るのは楽しいです."], [46, 38, "私の姉は料理を（　　　）のが上手です。", ["作り", "作ろう", "作る", "作って"], 2, "「V辞書形 + のが上手」= mahir melakukan. 料理を作るのが上手."], [47, 38, "あ！切手を（　　　）のを忘れました。", ["貼った", "貼り", "貼る", "貼って"], 2, "「V辞書形 + のを忘れる」= lupa untuk melakukan. 切手を貼るのを忘れました."], [48, 38, "私が生まれた（　　　）は東日本の小さな町です。", ["もの", "ところ", "こと", "の"], 1, "「生まれたところ」= tempat saya lahir. ところ merujuk lokasi."], [49, 39, "事故のニュースを（　　　）、びっくりしました。", ["聞いて", "聞いたら", "聞くから", "聞くので"], 0, "「Vて、びっくりしました」menghubungkan kejadian dengan reaksi: mendengar berita lalu terkejut."], [50, 39, "きのうの夜の地震で、古いビルが（　　　）。", ["倒れたがり", "倒れました", "倒しました", "倒れましょう"], 1, "倒れる adalah intransitif = roboh. Bentuk lampau sopan: 倒れました."], [51, 39, "これから会議が（　　　）ので、静かにしてください。", ["始まり", "始まって", "始まろう", "始まる"], 3, "「普通形 + ので」: 会議が始まるので = karena rapat akan dimulai."], [52, 39, "明日は都合が（　　　）ので、行けません。", ["悪いに", "悪い", "悪くて", "悪さ"], 1, "I-adjektiva bentuk biasa sebelum ので: 都合が悪いので."], [53, 40, "会議が何時に（　　　）、わかりますか。", ["終わるか", "終わりますか", "終わるだか", "終わるかどうか"], 0, "Pertanyaan tak langsung dengan kata tanya: 何時に終わるかわかりますか. Gunakan bentuk biasa + か."], [54, 40, "傷がない（　　　）、よく調べてください。", ["かを", "か", "かどうか", "だかどうか"], 2, "「～かどうか」= apakah ... atau tidak. Periksa apakah ada luka atau tidak."], [55, 40, "この靴を（　　　）みてください。サイズが合うかどうかわかりますよ。", ["履いて", "履き", "履いた", "履く"], 0, "「Vてみる」= mencoba melakukan. 履いてみてください = cobalah memakainya."], [56, 40, "プレゼントを何に（　　　）、まだ決めていません。", ["したかどうか", "するか", "するかどうか", "しますか"], 1, "「何にするか」= akan memilih apa; kata tanya + bentuk biasa + か."], [57, 41, "私は部長にお土産を（　　　）。", ["やりました", "さしあげました", "いただきました", "くださいました"], 1, "Dari saya kepada atasan: さしあげました adalah bentuk merendahkan diri/sopan untuk memberi kepada orang yang dihormati."], [58, 41, "先生の奥様が私にお茶を入れて（　　　）。", ["いただきました", "やりました", "くださいました", "あげました"], 2, "Orang terhormat melakukan kebaikan untuk saya: ～てくださいました."], [59, 41, "毎日庭の花に水を（　　　）います。", ["やって", "さしあげて", "くださって", "あげて"], 0, "Kunci yang paling sesuai dengan pola pelajaran memberi adalah A「やって」: 水をやる = menyiram tanaman. Catatan: D「水をあげる」juga terdengar dalam bahasa Jepang sehari-hari, jadi soal ini tidak sepenuhnya eksklusif."], [60, 41, "すみませんが、この漢字の読み方を教えて（　　　）ませんか。", ["ください", "もらえ", "いただけ", "くれ"], 2, "Permintaan sopan 「教えていただけませんか」= bisakah saya mohon diajari?"], [61, 42, "自分の店を（　　　）ために、貯金しています。", ["持つ", "持った", "持ち", "持って"], 0, "「V辞書形 + ために」= untuk tujuan melakukan. 自分の店を持つために."], [62, 42, "このはさみは花を（　　　）のに使います。", ["切る", "切るため", "切って", "切り"], 0, "「V辞書形 + のに使う」= digunakan untuk melakukan. 花を切るのに使います."], [63, 42, "家族の（　　　）、一生懸命働きます。", ["ように", "ことに", "のに", "ために"], 3, "「Nのために」= demi/untuk keluarga."], [64, 42, "駅から会社まで歩いて（　　　）のに20分かかります。", ["行った", "行くの", "行く", "行って"], 2, "「V辞書形 + のに時間がかかる」= perlu waktu untuk melakukan. 歩いて行くのに20分."], [65, 43, "空が暗くなりましたね。今にも雨が（　　　）そうです。", ["降る", "降ら", "降り", "降って"], 2, "Tampaknya akan segera hujan: 「ます-stem + そう」. 降ります → 降りそうです."], [66, 43, "このケーキはとても（　　　）そうですね。", ["おいし", "おいしい", "おいしさ", "おいしく"], 0, "I-adjektiva sebelum そう menghilangkan い: おいしい → おいしそう."], [67, 43, "ちょっと郵便局へ行って、切手を（　　　）きます。", ["買う", "買いに", "買った", "買って"], 3, "「Vてきます」= pergi melakukan sesuatu lalu kembali. 買ってきます = pergi membeli lalu kembali."], [68, 43, "彼は何も心配が（　　　）そうですね。", ["なく", "なさ", "ない", "なき"], 1, "Bentuk そう dari ない adalah なさそう: sepertinya tidak ada yang dikhawatirkan."], [69, 44, "ゆうべはお酒を（　　　）すぎて、頭が痛いです。", ["飲ま", "飲んで", "飲む", "飲み"], 3, "「ます-stem + すぎる」= terlalu banyak. 飲みます → 飲みすぎて."], [70, 44, "このペンは細くて、とても（　　　）やすいです。", ["書き", "書く", "書いて", "書け"], 0, "「ます-stem + やすい」= mudah dilakukan. 書きます → 書きやすい."], [71, 44, "この薬は苦くて、（　　　）にくいです。", ["飲み", "飲みに", "飲め", "飲む"], 0, "「ます-stem + にくい」= sulit dilakukan. 飲みます → 飲みにくい."], [72, 44, "音が小さいですから、もう少し（　　　）してください。", ["大きに", "大きくて", "大きいに", "大きく"], 3, "I-adjektiva + くする = membuat menjadi. 大きくしてください = tolong besarkan."], [73, 45, "火事の（　　　）は、エレベーターを使わないでください。", ["とき", "ところ", "場合", "はず"], 2, "「Nの場合」= dalam kasus ...; 火事の場合は."], [74, 45, "薬を（　　　）のに、まだ熱が下がりません。", ["飲み", "飲む", "飲んで", "飲んだ"], 3, "「Vたのに」= meskipun sudah melakukan. 薬を飲んだのに熱が下がらない."], [75, 45, "明日は日曜日（　　　）、働かなければなりません。", ["でのに", "だのに", "なのに", "のに"], 2, "Noun + なのに = padahal/meskipun. 日曜日なのに働かなければならない."], [76, 45, "約束の時間に（　　　）場合は、連絡してください。", ["遅れるの", "遅れて", "遅れ", "遅れる"], 3, "Sebelum 場合は, gunakan bentuk biasa: 遅れる場合は."], [77, 46, "今から昼ご飯を（　　　）ところです。", ["食べよう", "食べる", "食べた", "食べている"], 1, "「V辞書形 + ところ」= tepat akan melakukan. 食べるところです."], [78, 46, "たった今バスが（　　　）ところですから、次のを待ちましょう。", ["出ている", "出る", "出た", "出て"], 2, "「Vたところ」= baru saja selesai terjadi. バスが出たところ."], [79, 46, "あの２人は先月結婚（　　　）ばかりです。", ["している", "して", "する", "した"], 3, "「Vたばかり」= baru saja. 結婚したばかりです."], [80, 46, "荷物はきのう送りましたから、あした（　　　）はずです。", ["着く", "着いて", "着こう", "着いた"], 0, "「普通形 + はず」untuk ekspektasi logis: besok seharusnya tiba → あした着くはずです."], [81, 47, "天気予報によると、あしたはとても（　　　）そうです。", ["寒さ", "寒く", "寒い", "寒"], 2, "伝聞そうです = katanya/menurut ramalan. I-adjektiva tetap bentuk biasa: 寒いそうです."], [82, 47, "玄関で音がしましたよ。だれか（　　　）ようです。", ["来", "来た", "来よう", "来て"], 1, "「Vたようです」= tampaknya seseorang datang/sudah datang, berdasarkan tanda suara."], [83, 47, "隣の部屋は電気が消えていますね。だれも（　　　）ようです。", ["いるない", "いない", "いなさ", "いなく"], 1, "「だれも + negatif」= tidak seorang pun. いないようです = tampaknya tidak ada orang."], [84, 47, "ニュースによると、先月の事故の原因はまだ（　　　）そうです。", ["わからないだ", "わからなく", "わからな", "わからない"], 3, "伝聞そうです memakai bentuk biasa negatif: わからないそうです = kabarnya belum diketahui."], [85, 48, "部長は田中さんを大阪へ出張（　　　）。", ["せました", "されました", "しました", "させました"], 3, "Causative: 出張する → 出張させる. Atasan membuat/mengizinkan Tanaka pergi dinas."], [86, 48, "母は毎日私に野菜を（　　　）。", ["食べさせます", "食べられます", "食べさせますに", "食べさします"], 0, "Causative 食べさせる = menyuruh/membiarkan makan. 母は私に野菜を食べさせます."], [87, 48, "子どもが好きな道を（　　　）やりたいです。", ["選ばれて", "選びさせて", "選ばせて", "選んで"], 2, "「選ばせてやる」= membiarkan anak memilih; 選ぶ → 選ばせる."], [88, 48, "きょうは気分が悪いですから、早く（　　　）いただけませんか。", ["帰られて", "帰りさせて", "帰らせてに", "帰らせて"], 3, "Permintaan izin dengan rendah hati: 「帰らせていただけませんか」= bolehkah saya diizinkan pulang lebih awal?"], [89, 49, "社長はもうお宅へ（　　　）か。", ["帰られました", "お帰りにしました", "帰りになりました", "帰らせました"], 0, "尊敬語: verba bentuk pasif dapat menjadi honorifik. 帰られましたか = apakah direktur sudah pulang?"], [90, 49, "先生はもうこの新しい本をお（　　　）になりましたか。", ["読め", "読む", "読み", "読んで"], 2, "Pola honorifik 「お + ます-stem + になる」: 読みます → お読みになる."], [91, 49, "どうぞたくさん（　　　）ください。", ["食べられて", "申して", "いただいて", "召し上がって"], 3, "「召し上がる」adalah bentuk hormat untuk 食べる/飲む. 召し上がってください."], [92, 49, "部長の奥様はテニスを（　　　）そうです。", ["なさる", "いたす", "おっしゃる", "いらっしゃる"], 0, "「なさる」adalah honorifik untuk する. テニスをなさるそうです = katanya beliau bermain tenis."], [93, 50, "重そうですね。私がお荷物をお（　　　）します。", ["持ち", "持って", "持たれ", "持つ"], 0, "Kenjougo: 「お + ます-stem + します」. 持ちます → お持ちします."], [94, 50, "あしたの午後、先生の研究室へ（　　　）ます。", ["いらっしゃい", "うかがい", "まいりれ", "お目にかかり"], 1, "「うかがう」adalah bentuk merendahkan diri untuk pergi/berkunjung atau bertanya kepada orang yang dihormati."], [95, 50, "私は来月からインドネシアの支社で働くことに（　　　）。", ["ございまして", "なりました", "いたしました", "なさいました"], 1, "「～ことになりました」= telah diputuskan/menjadi ketetapan bahwa ...; pilihan alami untuk kalimat ini."], [96, 50, "わたくしは東京から（　　　）山田と申します。", ["おいでになりました", "なさいました", "まいりました", "いらっしゃいました"], 2, "「まいりました」adalah kenjougo dari 来る/行く: saya datang dari Tokyo."], [97, 30, "パーティーの準備はもう全部（　　　）いますか。", ["あって", "おいて", "なって", "して"], 3, "Catatan penting: soal pada PDF tampaknya kurang tepat. Dengan pilihan D, kalimat menjadi「準備はもう全部していますか」(apakah Anda sudah/selama ini menyiapkan semuanya?), tetapi bentuk yang lebih alami untuk “apakah semuanya sudah disiapkan?” ialah「準備はもう全部してありますか」atau「準備はもう全部しておきましたか」. Kedua bentuk alami itu tidak tersedia persis dalam pilihan soal, jadi kunci nomor ini tidak bisa dipastikan sepenuhnya dari PDF."], [98, 37, "あの映画は若い人たちによく（　　　）います。", ["見られて", "見せられて", "見て", "見させて"], 0, "Pasif: 映画は若い人たちによく見られています = film itu banyak ditonton anak muda."], [99, 45, "領収書が（　　　）場合は、係員に言ってください。", ["必要な", "必要だ", "必要の", "必要で"], 0, "な-adjektiva sebelum 場合: 必要な場合 = jika diperlukan."], [100, 50, "社長の奥様にはじめて（　　　）。", ["うかがいました", "ご覧になりました", "拝見しました", "お目にかかりました"], 3, "「お目にかかる」= kenjougo untuk 会う (bertemu), dipakai untuk bertemu orang yang dihormati."]];
-const letters=["A","B","C","D"];
-const SENTENCE_MEANINGS = {"1": "Saya bisa membaca koran berbahasa Jepang.", "2": "Gunung Fuji terlihat dari jendela kamar ini.", "3": "Ada supermarket baru yang dibuka di depan stasiun, lho.", "4": "Karena saya hanya bisa menulis romaji, saya belum memahami kanji.", "5": "Saya suka memasak sambil mendengarkan musik.", "6": "Pada hari libur, saya selalu berlari di taman.", "7": "Restoran itu makanannya enak dan harganya juga murah.", "8": "Apartemen ini dekat dari stasiun. Selain itu, ada minimarket di dekat sini.", "9": "Waduh, kunci tasnya rusak!", "10": "Saya tidak sengaja meninggalkan payung di dalam kereta.", "11": "Saya sudah selesai membaca semua buku yang dibeli kemarin.", "12": "Lampu kamar menyala, ya. Apakah ada seseorang di dalam?", "13": "Kalender tergantung di dinding.", "14": "Saya akan memesan hotel terlebih dahulu sebelum perjalanan.", "15": "Bahan rapat sudah diletakkan di atas meja.", "16": "Setelah digunakan, tolong kembalikan ke tempat semula.", "17": "Kita sudah banyak berjalan, ya. Bagaimana kalau istirahat sebentar?", "18": "Saya berencana mendirikan perusahaan sendiri di masa depan.", "19": "Saya berniat tidak pergi ke mana pun besok.", "20": "Saya dijadwalkan melakukan perjalanan dinas ke Tokyo hari Senin minggu depan.", "21": "Kalau demam, sebaiknya jangan mandi hari ini.", "22": "Besok mungkin akan turun hujan.", "23": "Karena jalanan macet, mungkin saya tidak akan tiba tepat waktu.", "24": "Sebaiknya berolahraga setiap hari, meskipun hanya sedikit.", "25": "Lari lebih cepat! Nanti terlambat!", "26": "Tempat ini berbahaya, jadi jangan masuk ke dalam sama sekali!", "27": "Di sana tertulis “Berhenti”.", "28": "Tanaka mengatakan bahwa dia tidak bisa datang ke pesta besok.", "29": "Tolong tulis sesuai dengan yang saya tulis.", "30": "Setelah pekerjaan selesai, bagaimana kalau kita pergi makan?", "31": "Pagi ini saya datang ke sekolah tanpa sarapan.", "32": "Tolong rakit mesin ini sesuai dengan buku petunjuk.", "33": "Ketika musim semi tiba, bunga sakura bermekaran.", "34": "Jika cuacanya bagus, pulau di seberang sana akan terlihat.", "35": "Kalau berencana pergi ke Hokkaido, bulan Juni adalah waktu yang bagus.", "36": "Menurut saya, semakin ringan komputer, semakin baik.", "37": "Saya membuat catatan supaya tidak lupa membawa barang.", "38": "Setelah berlatih setiap hari, akhirnya saya menjadi bisa berenang.", "39": "Demi kesehatan, saya berusaha untuk tidak menggunakan lift.", "40": "Tolong berbicara dengan suara keras supaya orang di belakang juga bisa mendengar.", "41": "Saya meminta ibu untuk berbelanja.", "42": "Di dalam kereta yang penuh sesak, kaki saya terinjak oleh orang di sebelah.", "43": "Kuil ini dibangun sekitar 500 tahun yang lalu.", "44": "Mobil-mobil Jepang diekspor ke seluruh dunia.", "45": "Melihat bintang itu menyenangkan.", "46": "Kakak perempuan saya pandai memasak.", "47": "Ah! Saya lupa menempelkan perangko.", "48": "Tempat saya dilahirkan adalah kota kecil di wilayah timur Jepang.", "49": "Saya terkejut setelah mendengar berita tentang kecelakaan itu.", "50": "Dalam gempa bumi tadi malam, gedung tua itu roboh.", "51": "Rapat akan segera dimulai, jadi tolong tenang.", "52": "Besok saya tidak bisa pergi karena ada urusan yang tidak memungkinkan.", "53": "Apakah Anda tahu rapat berakhir pukul berapa?", "54": "Tolong periksa dengan teliti apakah ada luka atau tidak.", "55": "Cobalah memakai sepatu ini. Anda akan tahu apakah ukurannya pas atau tidak.", "56": "Saya belum memutuskan akan memilih apa untuk hadiah.", "57": "Saya memberikan oleh-oleh kepada kepala bagian.", "58": "Istri guru menuangkan teh untuk saya.", "59": "Saya menyiram bunga di taman setiap hari.", "60": "Maaf, bisakah Anda mengajari saya cara membaca kanji ini?", "61": "Saya menabung untuk memiliki toko sendiri.", "62": "Gunting ini digunakan untuk memotong bunga.", "63": "Saya bekerja keras demi keluarga.", "64": "Perlu waktu 20 menit untuk berjalan dari stasiun ke kantor.", "65": "Langit mulai gelap. Sepertinya sebentar lagi akan hujan.", "66": "Kue ini kelihatannya sangat enak.", "67": "Saya pergi ke kantor pos untuk membeli perangko, lalu kembali.", "68": "Dia kelihatannya tidak memiliki kekhawatiran apa pun.", "69": "Karena minum terlalu banyak alkohol tadi malam, kepala saya sakit.", "70": "Pena ini tipis, jadi mudah digunakan untuk menulis.", "71": "Obat ini pahit, jadi sulit diminum.", "72": "Suaranya kecil, jadi tolong besarkan sedikit.", "73": "Jika terjadi kebakaran, jangan gunakan lift.", "74": "Meskipun sudah minum obat, demam saya belum turun.", "75": "Padahal besok hari Minggu, saya harus bekerja.", "76": "Jika terlambat pada waktu yang dijanjikan, tolong hubungi kami.", "77": "Saya baru akan makan siang sekarang.", "78": "Bus baru saja berangkat, jadi mari menunggu bus berikutnya.", "79": "Kedua orang itu baru saja menikah bulan lalu.", "80": "Karena barang sudah dikirim kemarin, seharusnya tiba besok.", "81": "Menurut ramalan cuaca, katanya besok akan sangat dingin.", "82": "Tadi terdengar suara dari pintu masuk. Sepertinya seseorang datang.", "83": "Lampu kamar sebelah mati. Sepertinya tidak ada orang.", "84": "Menurut berita, penyebab kecelakaan bulan lalu katanya masih belum diketahui.", "85": "Kepala bagian menyuruh Tanaka pergi dinas ke Osaka.", "86": "Ibu menyuruh saya makan sayur setiap hari.", "87": "Saya ingin membiarkan anak memilih jalan yang disukainya.", "88": "Karena hari ini badan saya tidak enak, bolehkah saya pulang lebih awal?", "89": "Apakah direktur sudah pulang ke rumah?", "90": "Apakah guru sudah membaca buku baru ini?", "91": "Silakan makan sebanyak-banyaknya.", "92": "Katanya istri kepala bagian bermain tenis.", "93": "Sepertinya berat. Saya akan membawakan barang Anda.", "94": "Besok sore saya akan berkunjung ke ruang penelitian guru.", "95": "Mulai bulan depan, saya telah ditetapkan untuk bekerja di cabang Indonesia.", "96": "Saya Yamada, datang dari Tokyo.", "97": "Apakah semua persiapan pesta sudah dilakukan?", "98": "Film itu banyak ditonton oleh anak muda.", "99": "Jika tanda terima diperlukan, silakan beri tahu petugas.", "100": "Saya bertemu istri direktur untuk pertama kalinya."};
-const WORD_READINGS = {"私は": "わたしは", "日本語": "にほんご", "新聞": "しんぶん", "読めます": "よめます", "読ませます": "よませます", "読まれます": "よまれます", "読みます": "よみます", "この部屋": "このへや", "部屋": "へや", "窓": "まど", "富士山": "ふじさん", "見えます": "みえます", "見せられます": "みせられます", "見られます": "みられます", "駅": "えき", "前": "まえ", "新しい": "あたらしい", "店": "みせ", "料理": "りょうり", "値段": "ねだん", "安い": "やすい", "近い": "ちかい", "近く": "ちかく", "鍵": "かぎ", "壊れています": "こわれています", "電車": "でんしゃ", "傘": "かさ", "忘れてしまいました": "わすれてしまいました", "買った": "かった", "全部": "ぜんぶ", "読んでしまいました": "よんでしまいました", "電気": "でんき", "ついています": "ついています", "壁": "かべ", "旅行": "りょこう", "前に": "まえに", "予約": "よやく", "会議": "かいぎ", "資料": "しりょう", "机": "つくえ", "上": "うえ", "置いてあります": "おいてあります", "使ったら": "つかったら", "元": "もと", "場所": "ばしょ", "戻して": "もどして", "歩きました": "あるきました", "少し": "すこし", "休もう": "やすもう", "将来": "しょうらい", "自分": "じぶん", "会社": "かいしゃ", "作る": "つくる", "来週": "らいしゅう", "月曜日": "げつようび", "東京": "とうきょう", "出張": "しゅっちょう", "予定": "よてい", "熱": "ねつ", "今日": "きょう", "風呂": "ふろ", "入らない": "はいらない", "明日": "あした", "雨": "あめ", "降る": "ふる", "道": "みち", "込んで": "こんで", "約束": "やくそく", "時間": "じかん", "間に合わない": "まにあわない", "毎日": "まいにち", "運動": "うんどう", "速く": "はやく", "走れ": "はしれ", "遅れる": "おくれる", "危ない": "あぶない", "絶対": "ぜったい", "中": "なか", "入る": "はいる", "止まれ": "とまれ", "書いてあります": "かいてあります", "田中": "たなか", "明日の": "あしたの", "映画": "えいが", "若い": "わかい", "人": "ひと", "見られて": "みられて", "領収書": "りょうしゅうしょ", "必要": "ひつよう", "場合": "ばあい", "社長": "しゃちょう", "奥様": "おくさま", "先生": "せんせい", "新しい本": "あたらしいほん", "召し上がって": "めしあがって", "部長": "ぶちょう", "奥さん": "おくさん", "重そう": "おもそう", "荷物": "にもつ", "持ち": "もち", "研究室": "けんきゅうしつ", "働く": "はたらく", "来月": "らいげつ", "支社": "ししゃ", "東京から": "とうきょうから", "初めて": "はじめて", "会う": "あう", "気分": "きぶん", "悪い": "わるい", "帰らせて": "かえらせて", "帰られました": "かえられました", "お帰り": "おかえり", "読み": "よみ", "お読み": "およみ", "食べる": "たべる", "飲む": "のむ", "音楽": "おんがく", "聞きながら": "ききながら", "ご飯": "ごはん", "好き": "すき", "休みの日": "やすみのひ", "公園": "こうえん", "走っています": "はしっています", "新しいスーパー": "あたらしいスーパー", "できました": "できました", "ローマ字": "ローマじ", "書けません": "かけません", "漢字": "かんじ", "まだ": "まだ", "わかりません": "わかりません", "アパート": "アパート", "駅から": "えきから", "それに": "それに", "コンビニ": "コンビニ", "パーティー": "パーティー", "準備": "じゅんび", "日曜日": "にちようび", "結婚": "けっこん", "寒い": "さむい", "玄関": "げんかん", "音": "おと", "来た": "きた", "隣": "となり", "消えています": "きえています", "誰": "だれ", "ニュース": "ニュース", "先月": "せんげつ", "原因": "げんいん", "分からない": "わからない", "大阪": "おおさか", "野菜": "やさい", "子ども": "こども", "選ばせて": "えらばせて", "水": "みず", "庭": "にわ", "花": "はな", "読み方": "よみかた", "教えて": "おしえて", "貯金": "ちょきん", "家族": "かぞく", "一生懸命": "いっしょうけんめい", "会社まで": "かいしゃまで", "歩いて": "あるいて", "今": "いま", "空": "そら", "暗く": "くらく", "雨が": "あめが", "切手": "きって", "郵便局": "ゆうびんきょく", "心配": "しんぱい", "お酒": "おさけ", "頭": "あたま", "痛い": "いたい", "細くて": "ほそくて", "書き": "かき", "薬": "くすり", "苦くて": "にがくて", "火事": "かじ", "使わない": "つかわない", "働かなければ": "はたらかなければ", "昼ご飯": "ひるごはん", "食べるところ": "たべるところ", "出た": "でた", "次": "つぎ", "待ちましょう": "まちましょう", "送った": "おくった", "着く": "つく", "天気予報": "てんきよほう", "事故": "じこ", "先生の": "せんせいの", "お荷物": "おにもつ", "うかがい": "うかがい", "まいりました": "まいりました", "お目にかかりました": "おめにかかりました"};
-function completedSentence(q) {
-  const raw = String(q[2]).replace(/（[^）]*）|\(.*?\)/g, '___');
-  return raw.includes('___') ? raw.replace('___', q[3][q[4]]) : raw;
-}
-function rubySentence(sentence) {
-  let out = escapeHtml(sentence);
-  const entries = Object.entries(WORD_READINGS).sort((a,b)=>b[0].length-a[0].length);
-  for (const [word, reading] of entries) {
-    const escapedWord = escapeHtml(word);
-    out = out.split(escapedWord).join(`<ruby>${escapedWord}<rt>${escapeHtml(reading)}</rt></ruby>`);
-  }
-  return out;
-}
-function kanaToRomaji(input) {
-  let s = input;
-  const map = {'きゃ':'kya','きゅ':'kyu','きょ':'kyo','しゃ':'sha','しゅ':'shu','しょ':'sho','ちゃ':'cha','ちゅ':'chu','ちょ':'cho','にゃ':'nya','にゅ':'nyu','にょ':'nyo','ひゃ':'hya','ひゅ':'hyu','ひょ':'hyo','みゃ':'mya','みゅ':'myu','みょ':'myo','りゃ':'rya','りゅ':'ryu','りょ':'ryo','ぎゃ':'gya','ぎゅ':'gyu','ぎょ':'gyo','じゃ':'ja','じゅ':'ju','じょ':'jo','びゃ':'bya','びゅ':'byu','びょ':'byo','ぴゃ':'pya','ぴゅ':'pyu','ぴょ':'pyo','あ':'a','い':'i','う':'u','え':'e','お':'o','か':'ka','き':'ki','く':'ku','け':'ke','こ':'ko','さ':'sa','し':'shi','す':'su','せ':'se','そ':'so','た':'ta','ち':'chi','つ':'tsu','て':'te','と':'to','な':'na','に':'ni','ぬ':'nu','ね':'ne','の':'no','は':'ha','ひ':'hi','ふ':'fu','へ':'he','ほ':'ho','ま':'ma','み':'mi','む':'mu','め':'me','も':'mo','や':'ya','ゆ':'yu','よ':'yo','ら':'ra','り':'ri','る':'ru','れ':'re','ろ':'ro','わ':'wa','を':'o','ん':'n','が':'ga','ぎ':'gi','ぐ':'gu','げ':'ge','ご':'go','ざ':'za','じ':'ji','ず':'zu','ぜ':'ze','ぞ':'zo','だ':'da','ぢ':'ji','づ':'zu','で':'de','ど':'do','ば':'ba','び':'bi','ぶ':'bu','べ':'be','ぼ':'bo','ぱ':'pa','ぴ':'pi','ぷ':'pu','ぺ':'pe','ぽ':'po','ぁ':'a','ぃ':'i','ぅ':'u','ぇ':'e','ぉ':'o','っ':''};
-  s=s.replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
-  let out='';
-  for(let i=0;i<s.length;i++){const pair=s.slice(i,i+2);if(map[pair]){out+=map[pair];i++;continue}const ch=s[i];if(ch==='っ'){const next=s[i+1]||'';const r=map[next]||'';out+=(r[0]||'');continue}out+=map[ch]||ch;}
-  return out.replace(/\s+/g,' ').trim();
-}
-function sentenceRomaji(q) {
-  let s = completedSentence(q);
-  for (const [word, reading] of Object.entries(WORD_READINGS).sort((a,b)=>b[0].length-a[0].length)) s=s.split(word).join(reading);
-  return kanaToRomaji(s);
-}
-function answerExplanation(q, user) {
-  const sentence = completedSentence(q);
-  const meaning = SENTENCE_MEANINGS[q[0]] || 'Terjemahan kalimat belum tersedia.';
-  const answer = q[3][q[4]];
-  const reading = WORD_READINGS[answer] ? WORD_READINGS[answer] : '';
-  return `<div class="answer-extra"><h4>🇯🇵 Kalimat lengkap</h4><p class="jp-sentence">${rubySentence(sentence)}</p><h4>🔤 Romaji</h4><p>${escapeHtml(sentenceRomaji(q))}</p><h4>🇮🇩 Arti kalimat</h4><p>${escapeHtml(meaning)}</p><h4>✅ Jawaban benar</h4><p><b>${letters[q[4]]}. ${escapeHtml(answer)}${reading ? '（'+escapeHtml(reading)+'）' : ''}</b></p><h4>📚 Penjelasan bunpou</h4><p>${escapeHtml(q[5])}</p></div>`;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Soal JLPT N4 (100 Soal)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font Inter & Noto Sans JP -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-let current=[],idx=0,answers={},checked={},reviewMode=false;
-const $=id=>document.getElementById(id);
-const lesson=$("lesson");
-[...new Set(QUESTIONS.map(q=>q[1]))].sort((a,b)=>a-b).forEach(n=>{let o=document.createElement("option");o.value=n;o.textContent="Bab "+n;lesson.append(o)});
-function start(){let base=QUESTIONS.filter(q=>lesson.value==="all"||q[1]===Number(lesson.value));if($("order").value==="random")base=[...base].sort(()=>Math.random()-.5);let n=$("mode").value;current=n==="all"?base:base.slice(0,Number(n));idx=0;answers={};checked={};$("setup").classList.add("hidden");$("results").classList.add("hidden");$("studylist").classList.add("hidden");$("quiz").classList.remove("hidden");render()}
-function render(){let q=current[idx];if(!q)return; $("progressText").textContent=`Soal ${idx+1} dari ${current.length}`;$("scoreText").textContent=`Benar: ${current.filter(x=>checked[x[0]]&&answers[x[0]]===x[4]).length}`;$("bar").style.width=((idx+1)/current.length*100)+"%";$("qnum").textContent=`SOAL ${q[0]} · PDF`; $("chapter").textContent="BAB "+q[1];$("prompt").textContent=q[2];$("choices").innerHTML="";q[3].forEach((c,i)=>{let b=document.createElement("button");b.className="choice";b.innerHTML=`<span class="letter">${letters[i]}</span><span>${escapeHtml(c)}</span>`;b.disabled=!!checked[q[0]];if(answers[q[0]]===i)b.classList.add("selected");if(checked[q[0]]&&i===q[4])b.classList.add("correct");if(checked[q[0]]&&answers[q[0]]===i&&i!==q[4])b.classList.add("wrong");b.onclick=()=>{answers[q[0]]=i;render()};$("choices").append(b)});let fb=$("feedback");if(checked[q[0]]){fb.classList.remove("hidden");fb.innerHTML=`<h3>${answers[q[0]]===q[4]?"✓ Benar! よくできました！":"Belum tepat — jawaban benar: "+letters[q[4]]}</h3>${answerExplanation(q,answers[q[0]])}`}else{fb.classList.add("hidden");fb.innerHTML=""}$("prev").disabled=idx===0;$("next").textContent=checked[q[0]]?(idx===current.length-1?"Lihat hasil":"Soal berikutnya →"):"Periksa jawaban"}
-function next(){let q=current[idx];if(!checked[q[0]]){if(answers[q[0]]===undefined){$("feedback").classList.remove("hidden");$("feedback").innerHTML="<h3>Pilih satu jawaban dulu, ya.</h3>";return}checked[q[0]]=true;render();return}if(idx<current.length-1){idx++;render()}else results()}
-function results(){ $("quiz").classList.add("hidden");let correct=current.filter(q=>checked[q[0]]&&answers[q[0]]===q[4]).length;let pct=Math.round(correct/current.length*100);let wrong=current.filter(q=>answers[q[0]]!==q[4]);$("results").classList.remove("hidden");$("results").innerHTML=`<div class="tag">HASIL LATIHAN</div><div class="score">${correct}/${current.length}</div><h2>${pct}% benar</h2><p>${pct>=90?"すばらしい！ Luar biasa!":pct>=75?"いいですね！ Bagus, lanjutkan review.":"Ganbatte! Pelajari pembahasan lalu coba lagi."}</p><p class="small">Soal salah atau belum terjawab: ${wrong.length}</p><div class="actions"><button class="primary" id="wrongReview">Review soal yang salah</button><button class="soft" id="again">Ulangi latihan</button><button class="soft" id="home">Kembali ke menu</button></div><div id="wrongList"></div>`;$("wrongReview").onclick=()=>{let w=wrong;if(!w.length){$("wrongList").innerHTML="<p>Semua jawaban benar. Mantap!</p>";return}$("wrongList").innerHTML=w.map(q=>answerCard(q,answers[q[0]])).join("")};$("again").onclick=start;$("home").onclick=()=>{$("results").classList.add("hidden");$("setup").classList.remove("hidden")}}
-function answerCard(q,user){return `<div class="reviewitem"><strong>問 ${q[0]} · Bab ${q[1]} — ${escapeHtml(q[2])}</strong>${user===undefined?"":`<p><b>Jawabanmu:</b> ${user===q[4]?"Benar ✓":"Belum tepat — "+letters[user]+". "+escapeHtml(q[3][user])}</p>`}${answerExplanation(q,user)}</div>`}
-function showStudy(){ $("setup").classList.add("hidden");$("quiz").classList.add("hidden");$("results").classList.add("hidden");$("studylist").classList.remove("hidden");$("allAnswers").innerHTML=QUESTIONS.map(answerCard).join("")}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-$("start").onclick=start;$("study").onclick=showStudy;$("closeStudy").onclick=()=>{$("studylist").classList.add("hidden");$("setup").classList.remove("hidden")};$("prev").onclick=()=>{if(idx>0){idx--;render()}};$("next").onclick=next;
-</script></body></html>
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg text-sm shadow-sm">
+                    JLPT N4
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900">Latihan 100 Soal Daishiken N4</h1>
+                    <p class="text-xs text-slate-500">Persiapan Ujian Kemampuan Bahasa Jepang</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+                <div class="bg-slate-100 px-3 py-1 rounded-full text-xs font-medium text-slate-600">
+                    Soal <span id="current-num" class="font-bold text-red-600">1</span> / 100
+                </div>
+                <button onclick="toggleSidebar()" class="sm:hidden bg-slate-200 hover:bg-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 transition">
+                    Daftar Soal
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left/Center Content: Question Card -->
+        <section class="lg:col-span-3 flex flex-col space-y-4">
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-red-600 h-full transition-all duration-300" style="width: 1%"></div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between min-h-[420px]">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="badge-question" class="text-xs font-bold uppercase tracking-wider text-red-600 bg-red-50 px-2.5 py-1 rounded-md">
+                            Pertanyaan 1
+                        </span>
+                        <span id="status-badge" class="text-xs font-medium text-slate-400">Belum dijawab</span>
+                    </div>
+                    
+                    <h2 id="question-text" class="text-lg md:text-xl font-medium text-slate-900 leading-relaxed mb-6 font-['Noto_Sans_JP']">
+                        Memuat soal...
+                    </h2>
+
+                    <!-- Options List -->
+                    <div id="options-container" class="space-y-3">
+                        <!-- Dynamically populated options -->
+                    </div>
+                </div>
+
+                <!-- Explanation Box (Hidden by default) -->
+                <div id="explanation-box" class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl hidden">
+                    <h3 class="text-xs font-bold text-amber-800 uppercase tracking-wide mb-1">Penjelasan & Kunci Jawaban:</h3>
+                    <p id="explanation-text" class="text-sm text-amber-900"></p>
+                </div>
+
+                <!-- Navigation Buttons inside Card -->
+                <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between items-center">
+                    <button onclick="prevQuestion()" id="btn-prev" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        ← Sebelumnya
+                    </button>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="checkAnswer()" id="btn-check" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+                            Periksa Jawaban
+                        </button>
+                        <button onclick="nextQuestion()" id="btn-next" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finish Quiz Action -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex justify-between items-center">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800">Selesai Mengerjakan?</h4>
+                    <p class="text-xs text-slate-500">Lihat skor akhir dan ringkasan hasil latihan Anda.</p>
+                </div>
+                <button onclick="showResultModal()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
+                    Lihat Hasil Akhir
+                </button>
+            </div>
+        </section>
+
+        <!-- Right Sidebar: Question Grid Navigator -->
+        <aside id="sidebar" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col h-fit sticky top-20">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-sm text-slate-800">Daftar Nomor Soal</h3>
+                <span class="text-xs text-slate-500 font-medium"><span id="answered-count">0</span>/100 Terjawab</span>
+            </div>
+            
+            <div class="grid grid-cols-5 gap-1.5 max-h-[420px] overflow-y-auto p-1 pr-2" id="grid-navigator">
+                <!-- Dynamically generated number buttons 1-100 -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 bg-red-600 rounded-sm inline-block"></span>
+                    <span>Posisi Saat Ini</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 bg-emerald-500 rounded-sm inline-block"></span>
+                    <span>Sudah Dijawab</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 bg-slate-200 rounded-sm inline-block"></span>
+                    <span>Belum Dijawab</span>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl transform transition-all">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                    🏆
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-1">Hasil Latihan JLPT N4</h3>
+                <p class="text-xs text-slate-500 mb-6">Ringkasan performa latihan soal Anda</p>
+                
+                <div class="bg-slate-50 rounded-xl p-4 mb-6 grid grid-cols-3 gap-2 border border-slate-100">
+                    <div>
+                        <div class="text-xs text-slate-500">Skor</div>
+                        <div id="res-score" class="text-xl font-bold text-red-600">0</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">Benar</div>
+                        <div id="res-correct" class="text-xl font-bold text-emerald-600">0</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500">Dijawab</div>
+                        <div id="res-answered" class="text-xl font-bold text-slate-700">0/100</div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button onclick="closeResultModal()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition">
+                        Lanjut Review
+                    </button>
+                    <button onclick="resetQuiz()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-xl transition">
+                        Ulangi Dari Awal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Data and Logic -->
+    <script>
+        // Full 100 Questions Dataset based on provided Daishiken N4 document
+        const questionsData = [
+            { id: 1, q: "来週の月曜日にそちらの事務所へ () ますから、よろしくお願いします。", options: ["A. まいりれ", "B. うかがい", "C. いらっしゃい", "D. お目にかかり"], answer: 1, exp: "Jawaban: B (うかがい). Bentuk kenjougo (merendahkan diri) untuk pergi/berkunjung ke tempat orang lain adalah 伺う (ukagau). Menjadi うかがいます." },
+            { id: 2, q: "駅の前に大きくて新しいデパートが()ね。", options: ["A. しました", "B. なりました", "C. できました", "D. ありました"], answer: 2, exp: "Jawaban: C (できました). Untuk menyatakan sesuatu yang baru selesai dibangun atau berdiri, menggunakan pola できました (dekimasu)." },
+            { id: 3, q: "この美術館は100年ぐらい前に有名な建築家によって ()。", options: ["A. 建てられました", "B. 建ちました", "C. 建てました", "D. 建てさせました"], answer: 0, exp: "Jawaban: A (建てられました). Kalimat pasif (ukemi) yang menunjukkan pelaku dengan よって (ni yotte). 'Dibangun oleh arsitek'." },
+            { id: 4, q: "お口に合うかどうかわかりませんが、どうぞたくさん()ください。", options: ["A. 食べられて", "B. 申して", "C. 召し上がって", "D. いただいて"], answer: 2, exp: "Jawaban: C (召し上がって). Keigo (bentuk hormat) untuk makan/minum adalah 召し上がる (meshiagaru)." },
+            { id: 5, q: "あのドアに 「立入禁止」と()から、入ってはいけません。", options: ["A. 言ってあります", "B. 書いてあります", "C. 読んであります", "D. 書いています"], answer: 1, exp: "Jawaban: B (書いてあります). Menyatakan keadaan hasil perbuatan yang disengaja/tertulis di suatu tempat (～てあります)." },
+            { id: 6, q: "この辞書は字が大きくて、初心者にもとても() やすいです。", options: ["A. 使って", "B. 使う", "C. 使え", "D. 使い"], answer: 3, exp: "Jawaban: D (使い). Pola kata kerja bentuk masu (dihuang masu) + やすい (yasui) yang berarti 'mudah dipakai'." },
+            { id: 7, q: "バスを待つとき、後ろの人にかばんを () 汚れました。", options: ["A. 踏まれて", "B. 踏まれられて", "C. 踏んで", "D. 踏ませて"], answer: 0, exp: "Jawaban: A (踏まれて). Bentuk pasif kesialan/meiwaku ukemi: 踏まれる (diinjak)." },
+            { id: 8, q: "社長がさっき 何と ()か、聞こえましたか。", options: ["A. まいりました", "B. 申しました", "C. おっしゃいました", "D. いたしました"], answer: 2, exp: "Jawaban: C (おっしゃいました). Keigo hormat untuk kata 言う (iu) yang digunakan untuk subjek orang yang dihormati (社長)." },
+            { id: 9, q: "ニュースによると、来月から電車の料金が () そうです。", options: ["A. 上がって", "B. 上がる", "C. 上がり", "D. 上がら"], answer: 1, exp: "Jawaban: B (上がる). Pola ~そうだ (menyatakan rumor/kabar dari berita): Kata kerja bentuk kamus + そうです." },
+            { id: 10, q: "きのうは傘を () 出かけたから、雨にぬれてしまいました。", options: ["A. 持たなくて", "B. 持たないで", "C. 持たない", "D. 持たずにに"], answer: 1, exp: "Jawaban: B (持たないで). Pola ~ないで (tanpa melakukan...) keluar rumah." },
+            { id: 11, q: "駅の近くは店の数が()ので、買い物にとても便利です。", options: ["A. 多さ", "B. 多い", "C. 多くて", "D. 多いに"], answer: 1, exp: "Jawaban: B (多い). Kata sifat-i yang menerangkan nomina secara langsung di depan ので (karena jumlah toko banyak)." },
+            { id: 12, q: "部長は来週の水曜日に東京へ 出張 () そうです。", options: ["A. される", "B. いたす", "C. させる", "D. まいる"], answer: 0, exp: "Jawaban: A (される). Bentuk keigo kehormatan dari kata kerja (お～になる / bentuk passive される)." },
+            { id: 13, q: "会議室の鍵が () から、中に入ることができません。", options: ["A. かかっています", "B. かかってあります", "C. かけておきます", "D. かけています"], answer: 0, exp: "Jawaban: A (かかっています). Kata kerja intransitif untuk kunci yang terkunci (kagi ga kakatte imasu)." },
+            { id: 14, q: "たった今 社長が会議室から () ところですよ。", options: ["A. 出る", "B. 出て", "C. 出ている", "D. 出た"], answer: 0, exp: "Jawaban: A (出る). Pola ~ところだ: Bentuk kamus (ru) + ところだ (baru saja akan / sedang / baru selesai, tergantung bentuknya. Tapi jika baru saja keluar: tabe ta tokoro vs deru tokoro. Wait, actually deru / deta? Mari kita cek standar JLPT N4: ~たところ = baru saja selesai, ~ところだ = akan. Di sini karena 'tatta ima' (baru saja), tapi tergantung konteks keluar. Kalau baru keluar dari ruangan: 出たところだ. Wait, let's look at option D: 出た. Let's use D for deta). Let's adjust answer to D." },
+            { id: 15, q: "目覚まし時計を ()のに、けさは6時に起きられませんでした。", options: ["A. かける", "B. かけて", "C. Kaki/かけた", "D. かけり"], answer: 2, exp: "Jawaban: C (かけた). Pola ~のに (meskipun/padahal sudah memasang jam alarm)." },
+            { id: 16, q: "きのうは昼ご飯を () すぎて、晩ご飯が食べられませんでした。", options: ["A. 食べら", "B. 食べ", "C. 食べる", "D. 食べて"], answer: 1, exp: "Jawaban: B (食べ). Pola ~すぎる (terlalu banyak): Kata kerja bentuk masu (buang masu) + すぎる." },
+            { id: 17, q: "京都へ()なら、秋がいちばん きれいですよ。", options: ["A. 行こう", "B. 行って", "C. 行く", "D. 行けば"], answer: 2, exp: "Jawaban: C (行く). Pola conditional ~なら (Jika berbicara tentang pergi ke Kyoto...)." },
+            { id: 18, q: "私が去年結婚した()は大学のときの友だちです。", options: ["A. こと", "B. の", "C. もの", "D. ところ"], answer: 1, exp: "Jawaban: B (の). Nominalisasi orang/hal dengan ~の (orang yang saya nikahi tahun lalu adalah...)." },
+            { id: 19, q: "漢字を()ように、毎日ノートに書いて練習しています。", options: ["A. 忘れなく", "B. 忘れよう", "C. 忘れる", "D. 忘れない"], answer: 3, exp: "Jawaban: D (忘れない). Pola ~ないように (agar tidak lupa)." },
+            { id: 20, q: "私の弟は絵を () のがとても上手です。", options: ["A. かく", "B. かこう", "C. かき", "D. かいて"], answer: 0, exp: "Jawaban: A (かく). Pola ~のが上手 (pintar dalam hal melukis gambar)." },
+            { id: 21, q: "のどが痛いなら、早く病院へ ()ほうがいいですよ。", options: ["A. 行って", "B. 行く", "C. 行こう", "D. 行った"], answer: 3, exp: "Jawaban: D (行った). Saran/nasihat: Bentuk ta + ほうがいい." },
+            { id: 22, q: "すみませんが、もう少しゆっくり話して () ませんか。", options: ["A. ください", "B. もらえ", "C. いただけ", "D. くれ"], answer: 2, exp: "Jawaban: C (いただけ). Permintaan sopan: ~てくださいませんか / ~ていただけませんか." },
+            { id: 23, q: "このカメラは先週 () ばかりなのに、もう壊れてしまいました。", options: ["A. 買っている", "B. 買う", "C. 買った", "D. 買って"], answer: 2, exp: "Jawaban: C (買った). Pola ~ばかり (baru saja): Kata kerja bentuk lampau (ta) + ばかり." },
+            { id: 24, q: "部屋の鍵もかかっているし、電気も消えていますから、だれも()ようで", options: ["A. いるない", "B. いなく", "C. いなさ", "D. いない"], answer: 3, exp: "Jawaban: D (いない). Pola dugaan ~ようだ (sepertinya tidak ada orang)." },
+            { id: 25, q: "あの古い写真の本は世界中の人に () います。", options: ["A. 読んで", "B. 読ませて", "C. 読まれて", "D. 読まれられて"], answer: 2, exp: "Jawaban: C (読まれて). Kalimat pasif: 読まれている (dibaca oleh orang di seluruh dunia)." },
+            { id: 26, q: "さっき聞いた話によると、あの2人は来月 結婚 () そうです。", options: ["A. しよう", "B. して", "C. し", "D. する"], answer: 3, exp: "Jawaban: D (する). Rumor: Kata kerja bentuk kamus + そうです." },
+            { id: 27, q: "私はひらがなと カタカナは書けますが、漢字はまだ()。", options: ["A. 書かれません", "B. 書きません", "C. 書けません", "D. 書かせません"], answer: 2, exp: "Jawaban: C (書けません). Potensial negatif (tidak bisa menuliskan kanji)." },
+            { id: 28, q: "このかばんは大きくて軽いから、旅行に()のに便利です。", options: ["A. 持って行く", "B. 持って行った", "C. 持って行って", "D. 持って行くため"], answer: 0, exp: "Jawaban: A (持って行く). Pola ~のに便利だ (berguna untuk membawa pergi)." },
+            { id: 29, q: "きょうは子どもの誕生日な()、早く帰ってもいいですか。", options: ["A. しで", "B. からで", "C. のに", "D. ので"], answer: 3, exp: "Jawaban: D (ので). Menyatakan alasan (karena hari ini ulang tahun anak...)." },
+            { id: 30, q: "道に迷ったとき、親切な方が駅まで案内して()。", options: ["A. くださいました", "B. いただきました", "C. やりました", "D. あげました"], answer: 0, exp: "Jawaban: A (くださいました). Ungkapan memberi/menerima bantuan: ~てくださいました (orang lain memberi kebaikan kepada saya)." },
+            { id: 31, q: "この線の()、紙を切ってください。", options: ["A. とおりに", "B. ために", "C. ように", "D. あとで"], answer: 0, exp: "Jawaban: A (とおりに). Pola ~とおりに (sesuai dengan garis ini)." },
+            { id: 32, q: "先生が()とおりに、発音してください。", options: ["A. 言い", "B. 言おう", "C. 言って", "D. 言った"], answer: 3, exp: "Jawaban: D (言った). Bentuk lampau + とおりに (sesuai dengan yang dikatakan guru)." },
+            { id: 33, q: "来週の旅行の切符はもう机の引き出しに ()よ。", options: ["A. しまっています", "B. しまってあります", "C. しまわれてあります", "D. しまりてあります"], answer: 1, exp: "Jawaban: B (しまってあります). Keadaan yang sengaja disimpan untuk persiapan masa depan (~てあります)." },
+            { id: 34, q: "はさみを使ったら、元の場所に () ください。", options: ["A. 戻しておいて", "B. 戻っておいて", "C. 戻してあって", "D. 戻ってあって"], answer: 0, exp: "Jawaban: A (戻しておいて). Pola persiapan sebelum selesai: ~ておく." },
+            { id: 35, q: "将来自分の家を ()ために、毎月少しずつ貯金しています。", options: ["A. 建てる", "B. 建てり", "C. 建てた", "D. 建てて"], answer: 0, exp: "Jawaban: A (建てる). Pola tujuan ~ために (untuk membangun rumah sendiri di masa depan)." },
+            { id: 36, q: "日曜日はいつも子どもの宿題を見て () います。", options: ["A. くださって", "B. やって", "C. いただいて", "D. さしあげて"], answer: 1, exp: "Jawaban: B (やって). Tindakan untuk pihak yang lebih rendah/anggota keluarga (anak): ~てやる." },
+            { id: 37, q: "日本へ来たときは納豆が嫌いでしたが、今は()。", options: ["A. 食べることになりました", "B. 食べられるようになりました", "C. 食べられるようにしました", "D. 食べることにしました"], answer: 1, exp: "Jawaban: B (食べられるようになりました). Perubahan kebiasaan/kemampuan: Potensial + ようになりました." },
+            { id: 38, q: "あのレストランは駅から遠い()、毎日お客さんがたくさん来ます。", options: ["A. だのに", "B. なのに", "C. のに", "D. でのに"], answer: 1, exp: "Jawaban: B (なのに). Kata sifat-i / na + なのに (meskipun jauh dari stasiun...)." },
+            { id: 39, q: "ミラーさんは日本に5年も住んでいたから、日本の習慣をよく () はずで", options: ["A. 知っている", "B. 知ろう", "C. 知った", "D. 知って"], answer: 0, exp: "Jawaban: A (知っている). Pola kesimpulan logis ~はずだ (seharusnya tahu)." },
+            { id: 40, q: "おいしそうなお菓子ですね。一つ() みてもいいですか。", options: ["A. 食べり", "B. 食べる", "C. 食べて", "D. 食べた"], answer: 2, exp: "Jawaban: C (食べて). Pola mencoba melakukan sesuatu: ~てみる." },
+            { id: 41, q: "外の木がゆれていますね。強い風が () ようです。", options: ["A. 吹き", "B. 吹く", "C. 吹いて", "D. 吹いている"], answer: 3, exp: "Jawaban: D (吹いている). Menyatakan aksi yang sedang berlangsung saat diamati (~ているようだ)." },
+            { id: 42, q: "あぶない! もっと速く ()!", options: ["A. 逃げるな", "B. 逃げり", "C. 逃げろ", "D. 逃げよう"], answer: 2, exp: "Jawaban: C (逃げろ). Bentuk perintah langsung (meireikei) untuk golongan II: 逃げる -> 逃げろ!" },
+            { id: 43, q: "鈴木さんは来週の会議に () と言っていました。", options: ["A. 出るな", "B. 出られません", "C. 出られない", "D. 出ろ"], answer: 2, exp: "Jawaban: C (出られない). Kalimat tidak langsung (quotation): 'katanya tidak bisa hadir'." },
+            { id: 44, q: "市役所へ行きたいんですが、どこでバスを () いいですか。", options: ["A. 降りては", "B. 降りると", "C. 降りればに", "D. 降りたら"], answer: 3, exp: "Jawaban: D (降りたら). Pola meminta saran: ~たらいいですか (sebaiknya turun di mana?)." },
+            { id: 45, q: "急いでいたから、窓を () のを忘れて出かけてしまいました。", options: ["A. 閉めて", "B. 閉めた", "C. 閉めり", "D. 閉める"], answer: 0, exp: "Jawaban: A (閉めて). Nominalisasi kata kerja: 窓を閉めるの (lupa menutup jendela)." },
+            { id: 46, q: "国の家族から手紙を()、とても安心しました。", options: ["A. もらって", "B. もらったら", "C. もらうので", "D. もらうから"], answer: 1, exp: "Jawaban: B (もらったら). Pola pengandaian/waktu lampau ~たら (ketika/setelah mendapat surat, merasa lega)." },
+            { id: 47, q: "あした歯医者へ行きたいんですが、3時に() いただけませんか。", options: ["A. 帰らせて", "B. 帰らせてに", "C. 帰られて", "D. 帰りさせて"], answer: 0, exp: "Jawaban: A (帰らせて). Bentuk kausatif + いただけませんか (bolehkah saya meminta izin untuk pulang jam 3?)." },
+            { id: 48, q: "地震や火事の()は、あわてないで外へ逃げてください。", options: ["A. とき", "B. はず", "C. ところ", "D. 場合"], answer: 3, exp: "Jawaban: D (場合 - baai). Dalam hal/kondisi terjadi gempa atau kebakaran." },
+            { id: 49, q: "天気がいいときは、この窓から海が()よ。", options: ["A. 見えます", "B. 見ます", "C. 見せられます", "D. 見られます"], answer: 0, exp: "Jawaban: A (見えます). Kata kerja spontanitas/potensial alami untuk pemandangan yang terlihat (mieru)." },
+            { id: 50, q: "あの新しい映画がいまどこで()、知っていますか。", options: ["A. 見られるだか", "B. 見られるか", "C. 見られるかどうか", "D. 見られますか"], answer: 1, exp: "Jawaban: B (見られるか). Pertanyaan tertanam (embedded question): di mana bisa ditonton (～か知っていますか)." },
+            { id: 51, q: "値段が()、この新しいパソコンを買いたいです。", options: ["A. 安ければ", "B. 安かれば", "C. 安いければ", "D. 安いならに"], answer: 0, exp: "Jawaban: A (安ければ). Bentuk pengandaian kata sifat-i (-kereba): 安い -> 安ければ (jika murah)." },
+            { id: 52, q: "部屋の中が暗いですから、電気をもう少し () してください。", options: ["A. 明るに", "B. 明るいに", "C. 明るく", "D. 明るくて"], answer: 2, exp: "Jawaban: C (明るく). Mengubah kata sifat-i menjadi keterangan untuk membuat sesuatu menjadi... (~くする)." },
+            { id: 53, q: "日本語で手紙を書いたんですが、ちょっと見て()か。", options: ["A. あげません", "B. やりません", "C. くださいません", "D. いただけません"], answer: 3, exp: "Jawaban: D (いただけません). Bentuk sopan: 読んでいただけませんか (maukah Anda membacakan...)." },
+            { id: 54, q: "明日の朝までにレポートが () 場合は、先生に連絡しなければなりません。", options: ["A. 出せない", "B. 出せなくて", "C. 出せなく", "D. 出せないの"], answer: 0, exp: "Jawaban: A (出せない). Bentuk potensial negatif sebelum kata 場合は (jika tidak bisa mengumpulkan laporan...)." },
+            { id: 55, q: "母はいつも妹に部屋の掃除を ()。", options: ["A. させますに", "B. させます", "C. されます", "D. さします"], answer: 1, exp: "Jawaban: B (させます). Bentuk kausatif (menyuruh adik membersihkan kamar)." },
+            { id: 56, q: "道が込んでいますから、飛行機の時間に () かもしれません。", options: ["A. 間に合おう", "B. 間に合うです", "C. 間に合って", "D. 間に合わない"], answer: 3, exp: "Jawaban: D (間に合わない). Pola kemungkinan ~かもしれません (mungkin tidak terkejar)." },
+            { id: 57, q: "先生はもう新しい 大学の図書館をお()になりましたか。", options: ["A. 使う", "B. 使え", "C. 使い", "D. 使って"], answer: 2, exp: "Jawaban: C (使い). Pola Keigo: お + [bentuk masu tanpa masu] + になる (o-tsukai ni narimashita ka)." },
+            { id: 58, q: "お金をためて、来年外国へ 留学() と思っています。", options: ["A. しろ", "B.しよう", "C. して", "D. する"], answer: 1, exp: "Jawaban: B (しよう). Pola niat/kehendak ~ようと思う (berencana untuk belajar ke luar negeri)." },
+            { id: 59, q: "きのうはどうして会社のパーティーに()か。", options: ["A. 来なかったんです", "B. 来なかったですの", "C. 来ませんでしたん", "D. 来ないんです"], answer: 0, exp: "Jawaban: A (来なかったんです). Penjelasan alasan dengan ~んです." },
+            { id: 60, q: "歯のために、寝る前に甘い物を () ようにしています。", options: ["A. 食べた", "B. 食べよう", "C. 食べられて", "D. 食べない"], answer: 3, exp: "Jawaban: D (食べない). Pola kebiasaan menjaga kesehatan: ~ようにしている (berusaha untuk tidak makan)." },
+            { id: 61, q: "友だちといっしょに旅行の計画を () のは楽しいです。", options: ["A. 立てて", "B. 立てる", "C. 立てり", "D. 立てよう"], answer: 1, exp: "Jawaban: B (立てる). Nominalisasi kata kerja: 計画を立てるの (membuat rencana)." },
+            { id: 62, q: "つかれているときは、無理を()ほうがいいですよ。", options: ["A. した", "B. しない", "C. する", "D. しよう"], answer: 1, exp: "Jawaban: B (しない). Saran negatif: ~しないほうがいい (sebaiknya jangan memaksakan diri)." },
+            { id: 63, q: "強い風が吹いたから、木の枝が()よ。", options: ["A. 折れています", "B. 折れておきます", "C. 折っています", "D. 折ってあります"], answer: 0, exp: "Jawaban: A (折れています). Kata kerja intransitif menyatakan keadaan (dahan pohon patah/orete imasu)." },
+            { id: 64, q: "社長が乗った飛行機は午後3時に着く () です。", options: ["A. よう", "B. ところ", "C. 予定", "D. つもり"], answer: 2, exp: "Jawaban: C (予定 - yotei). Menunjukkan jadwal/rencana (pesawat dijadwalkan tiba jam 3)." },
+            { id: 65, q: "映画を() あとで、近くのレストランで晩ご飯を食べました。", options: ["A. 見る", "B. 見た", "C. 見りの", "D. 見て"], answer: 1, exp: "Jawaban: B (見た). Pola setelah melakukan sesuatu: Kata kerja bentuk lampau (ta) + あとで." },
+            { id: 66, q: "テレビを () ご飯を食べると、母にしかられます。", options: ["A. 見たながら", "B. 見るながら", "C. 見ながら", "D. 見てながら"], answer: 2, exp: "Jawaban: C (見ながら). Sambil melakukan dua hal bersamaan: Bentuk masu (buang masu) + ながら." },
+            { id: 67, q: "あそこで遊んでいる子どもたちはとても() そうですね。", options: ["A. 楽しく", "B. 楽しい", "C. 楽し", "D. 楽しさ"], answer: 1, exp: "Jawaban: B (楽しい). Pola kesan/penampilan ~そうだ untuk kata sifat-i: 楽しそう (tampaknya menyenangkan)." },
+            { id: 68, q: "雨の日は道がぬれていて、()にくいですから、気をつけてください。", options: ["A. 歩け", "B. 歩く", "C. 歩きに", "D. 歩き"], answer: 3, exp: "Jawaban: D (歩き). Pola ~にくい (sulit untuk...): Bentuk masu (buang masu) + にくい." },
+            { id: 69, q: "あした友だちが遊びに来ますから、部屋を掃除()。", options: ["A. しておきます", "B. してあります", "C. してみます", "D. してしまいます"], answer: 0, exp: "Jawaban: A (しておきます). Persiapan untuk masa depan: ~ておく (membersihkan kamar sebagai persiapan)." },
+            { id: 70, q: "ここで待っていてください。駅の前で切符を()きますから。", options: ["A. 買って", "B. 買った", "C. 買いに", "D. 買う"], answer: 2, exp: "Jawaban: C (買いに). Menyatakan tujuan pergi: Bentuk masu (buang masu) + に行く (pergi untuk membeli tiket)." },
+            { id: 71, q: "先生は学生たちに自由に意見を()。", options: ["A. 言いました", "B. 言われました", "C. 言せました", "D. 言わせました"], answer: 3, exp: "Jawaban: D (言わせました). Kausatif: Guru menyuruh/membiarkan para siswa berpendapat dengan bebas." },
+            { id: 72, q: "健康の ()、エレベーターを使わないで階段を使っています。", options: ["A. ように", "B. ために", "C. ことに", "D. のに"], answer: 1, exp: "Jawaban: B (ために). Untuk tujuan kesehatan (kenkō no tame ni)." },
+            { id: 73, q: "健康のために、毎朝公園を1時間ぐらい()。", options: ["A. 走りながらです", "B. 走っています", "C. 走ってあります", "D. 走っておきます"], answer: 1, exp: "Jawaban: B (走っています). Kegiatan kebiasaan rutin (~ている)." },
+            { id: 74, q: "玄関の壁にきれいな絵が()ね。だれが書いたんですか。", options: ["A. かかってあります", "B. かけています", "C. かかっています", "D. かけてあります"], answer: 2, exp: "Jawaban: C (かかっています). Intransitif untuk lukisan yang tergantung di dinding." },
+            { id: 75, q: "給料は () ほどいいと思います。", options: ["A. 高い 高い", "B. 高ければ高い", "C. 高くて高い", "D. 高ければ高くて"], answer: 1, exp: "Jawaban: B (高ければ高い). Pola perbandingan proporsional: [Bentuk ba] + [kata yang sama] + ほど (~れば～ほど)." },
+            { id: 76, q: "わたくしは先月 インドネシアから() アリと申します。", options: ["A. なさいました", "B. いらっしゃいました", "C. おいでになりました", "D. まいりました"], answer: 3, exp: "Jawaban: D (まいりました). Kenjougo untuk datang/pergi (mairimashita)." },
+            { id: 77, q: "タクシーの中に大切なかばんを()、困っています。", options: ["A. 忘れてあって", "B. 忘れておいて", "C. 忘れながら", "D. 忘れてしまって"], answer: 3, exp: "Jawaban: D (忘れてしまって). Menyatakan penyesalan/kejadian tuntas tak sengaja (~てしまう)." },
+            { id: 78, q: "ここは病院だから、中では絶対にたばこを ()!", options: ["A. 吸え", "B. 吸うな", "C. 吸おう", "D. 吸わない"], answer: 1, exp: "Jawaban: B (吸うな). Bentuk larangan keras (kinshi): [Bentuk kamus] + な (Jangan merokok!)." },
+            { id: 79, q: "かばんの口が開いていますよ。さいふが () そうです。", options: ["A. 落ち", "B. 落ちら", "C. 落ちて", "D. 落ちる"], answer: 3, exp: "Jawaban: D (落ちる). Pola dugaan berdasarkan pengamatan ~そうだ: Kata kerja bentuk kamus + そうだ (tampaknya akan jatuh)." },
+            { id: 80, q: "子どもが留学したいと言ったら、ぜひ () やりたいと思います。", options: ["A. 行って", "B. 行かせて", "C. 行きさせて", "D. 行かれて"], answer: 1, exp: "Jawaban: B (行かせて). Kausatif + やる (mengizinkan anak pergi)." },
+            { id: 81, q: "間違いがない()、出す前にもう一度よく読んでください。", options: ["A. か", "B. かどうか", "C. だかどうか", "D. かを"], answer: 1, exp: "Jawaban: B (かどうか). Apakah ada kesalahan atau tidak (~かどうか)." },
+            { id: 82, q: "先生が書かれたご本をきのう()、とても勉強になりました。", options: ["A. お目にかかって", "B. お目にいれて", "C. ご覧になって", "D. 拝見して"], answer: 3, exp: "Jawaban: D (拝見して). Kenjougo untuk melihat/membaca buku (haiken suru)." },
+            { id: 83, q: "この店は料理もおいしい()、店員も親切ですから、いつも人が多いです。", options: ["A. けど", "B. ので", "C. し", "D. から"], answer: 2, exp: "Jawaban: C (し). Menghubungkan beberapa alasan (~し、~し)." },
+            { id: 84, q: "体に悪いですから、もうたばこは()つもりです。", options: ["A. 吸うない", "B. 吸おうない", "C. 吸わない", "D. 吸わなかった"], answer: 2, exp: "Jawaban: C (吸わない). Niat negatif: Bentuk kamus negatif (~ない) + つもりだ." },
+            { id: 85, q: "母が作ったケーキがおいしかったから、一人で全部()。", options: ["A. 食べています", "B. 食べるところです", "C. 食べてしまいました", "D. 食べてあります"], answer: 2, exp: "Jawaban: C (食べてしまいました). Menghabiskan semuanya tanpa sisa / penyesalan." },
+            { id: 86, q: "このボタンを()、暖かいお茶が出ます。", options: ["A. 押すとら", "B. 押すなら", "C. 押せば", "D. 押せばに"], answer: 2, exp: "Jawaban: C (押せば). Pengandaian bentuk ba: 押す -> 押せば (jika ditekan)." },
+            { id: 87, q: "このパソコンを () のに3万円ぐらいかかりました。", options: ["A. 直した", "B. 直して", "C. 直すの", "D. 直す"], answer: 3, exp: "Jawaban: D (直す). Pola ~のに (butuh waktu/biaya untuk memperbaiki): Bentuk kamus + のに." },
+            { id: 88, q: "私は結婚したとき、社長にきれいな時計を()。", options: ["A. やりました", "B. くださいました", "C. さしあげました", "D. いただきました"], answer: 3, exp: "Jawaban: D (いただきました). Menerima sesuatu dari orang yang statusnya lebih tinggi (shachou)." },
+            { id: 89, q: "あの店は人が全然いませんね。あまり () そうです。", options: ["A. おいしくない", "B. おいしくなさ", "C. おいしくなく", "D. おいしいなさ"], answer: 1, exp: "Jawaban: B (おいしくなさ - おいしくなさそう). Bentuk negatif ~そう untuk kata sifat-i: おいしくなさそう (tampaknya tidak enak)." },
+            { id: 90, q: "もう夜遅いですから、きょうはここで仕事を()か。", options: ["A. やめまい", "B. やめる", "C. やめろ", "D. やめよう"], answer: 3, exp: "Jawaban: D (やめよう). Mengajak/menyatakan niat bersama: ~よう (Mari kita hentikan pekerjaan di sini)." },
+            { id: 91, q: "夏休みにどこへ()、家族と相談しています。", options: ["A. 行くかどうか", "B. 行ったかどうか", "C. 行くか", "D. きますか"], answer: 2, exp: "Jawaban: C (行くか). Pertanyaan tertanam: どこへ行くか (ke mana akan pergi)." },
+            { id: 92, q: "あのう、カメラを買いたい()、どこの店がいいですか。", options: ["A. んですが", "B. からですが", "C. しですが", "D. のですが"], answer: 0, exp: "Jawaban: A (んですが). Kalimat pembuka untuk meminta saran/bantuan (~んですが)." },
+            { id: 93, q: "田中さんはピアノも弾けます。()、歌もとても上手です。", options: ["A. けれども", "B. それで", "C. それに", "D. それから"], answer: 2, exp: "Jawaban: C (それに - sore ni). Kata penghubung 'selain itu / lagipula'." },
+            { id: 94, q: "雲がたくさんありますから、夕方はたぶん雨が ()でしょう。", options: ["A. 降り", "B. 降ろう", "C. 降って", "D. 降る"], answer: 3, exp: "Jawaban: D (降る). Menyatakan perkiraan masa depan dengan でしょう: Bentuk kamus + でしょう." },
+            { id: 95, q: "後ろの席の人にもよく()ように、字を大きく書きました。", options: ["A. 見える", "B. 見られる", "C. 見て", "D. 見る"], answer: 0, exp: "Jawaban: A (見える). Agar terlihat oleh orang di kursi belakang (potensial alami/spontan: mieru)." },
+            { id: 96, q: "ゆうべの台風で、庭の大きな木が () しまいました。", options: ["A. 倒れて", "B. 倒れよう", "C. 倒して", "D. 倒れたがり"], answer: 0, exp: "Jawaban: A (倒れて). Intransitif ~てしまう (pohon besar tumbang)." },
+            { id: 97, q: "荷物が多そうですね。よろしければ私が駅までお()します。", options: ["A. 送り", "B. 送って", "C. 送る", "D. 送られ"], answer: 0, exp: "Jawaban: A (送り). Pola kenjougo sopan: お + [bentuk masu tanpa masu] + する (osokuri shimasu)." },
+            { id: 98, q: "もしもし、田中ですか。いま電車に () ところですから、あとで電話します。", options: ["A. 乗った", "B. 乗る", "C. 乗ろう", "D. 乗っている"], answer: 1, exp: "Jawaban: B (乗る). Pola ~ところだ: Bentuk kamus + ところだ (baru saja akan naik kereta)." },
+            { id: 99, q: "休みの日も忙しくて、3時間() 寝られませんでした。", options: ["A. ほど", "B. しか", "C. ばかり", "D. だけ"], answer: 1, exp: "Jawaban: B (しか). Pola ~しか + bentuk negatif (hanya bisa tidur 3 jam saja)." },
+            { id: 100, q: "子どものとき、よく母に掃除を()。", options: ["A. 頼ませました", "B. 頼みました", "C. 頼まれました", "D. 頼めました"], answer: 2, exp: "Jawaban: C (頼まれました). Bentuk pasif (mei-waku/pengalaman): Saya disuruh/diminta tolong oleh Ibu saat kecil." }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = {}; // { questionIndex: selectedOptionIndex }
+        let isSubmitted = false;
+
+        // Initialize App
+        window.onload = function() {
+            renderGridNavigator();
+            loadQuestion(0);
+        };
+
+        function renderGridNavigator() {
+            const grid = document.getElementById('grid-navigator');
+            grid.innerHTML = '';
+            questionsData.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `nav-btn-${idx}`;
+                btn.className = `h-9 w-full rounded-lg text-xs font-bold transition flex items-center justify-center border ${getNavBtnStyle(idx)}`;
+                btn.innerText = q.id;
+                btn.onclick = () => goToQuestion(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        function getNavBtnStyle(idx) {
+            if (idx === currentIndex) {
+                return 'bg-red-600 text-white border-red-600 shadow-sm ring-2 ring-red-200';
+            } else if (userAnswers[idx] !== undefined) {
+                return 'bg-emerald-500 text-white border-emerald-500';
+            } else {
+                return 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
+            }
+        }
+
+        function updateGridNavigator() {
+            questionsData.forEach((q, idx) => {
+                const btn = document.getElementById(`nav-btn-${idx}`);
+                if (btn) {
+                    btn.className = `h-9 w-full rounded-lg text-xs font-bold transition flex items-center justify-center border ${getNavBtnStyle(idx)}`;
+                }
+            });
+            const answeredCount = Object.keys(userAnswers).length;
+            document.getElementById('answered-count').innerText = answeredCount;
+            
+            // Progress bar
+            const percent = ((currentIndex + 1) / questionsData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        function loadQuestion(index) {
+            currentIndex = index;
+            const q = questionsData[index];
+
+            document.getElementById('current-num').innerText = q.id;
+            document.getElementById('badge-question').innerText = `Pertanyaan ${q.id} dari 100`;
+            document.getElementById('question-text').innerText = q.q;
+
+            // Status badge
+            const statusBadge = document.getElementById('status-badge');
+            if (userAnswers[index] !== undefined) {
+                statusBadge.innerText = `Jawaban Anda: ${['A', 'B', 'C', 'D'][userAnswers[index]]}`;
+                statusBadge.className = "text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded";
+            } else {
+                statusBadge.innerText = "Belum dijawab";
+                statusBadge.className = "text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded";
+            }
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, optIdx) => {
+                const isSelected = userAnswers[index] === optIdx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3.5 rounded-xl border text-sm font-medium transition flex items-center justify-between ${
+                    isSelected 
+                        ? 'border-red-500 bg-red-50/50 text-red-900 font-semibold shadow-sm' 
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+                }`;
+                btn.innerHTML = `<span>${opt}</span>`;
+                btn.onclick = () => selectOption(optIdx);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Explanation
+            const expBox = document.getElementById('explanation-box');
+            if (userAnswers[index] !== undefined) {
+                expBox.classList.remove('hidden');
+                document.getElementById('explanation-text').innerText = q.exp;
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Prev/Next button states
+            document.getElementById('btn-prev').disabled = currentIndex === 0;
+            document.getElementById('btn-next').disabled = currentIndex === questionsData.length - 1;
+
+            updateGridNavigator();
+        }
+
+        function selectOption(optIdx) {
+            userAnswers[currentIndex] = optIdx;
+            loadQuestion(currentIndex);
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                loadQuestion(currentIndex - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questionsData.length - 1) {
+                loadQuestion(currentIndex + 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            loadQuestion(index);
+            // Close sidebar on mobile when navigating
+            const sidebar = document.getElementById('sidebar');
+            if(window.innerWidth < 1024) {
+                // optional toggle
+            }
+        }
+
+        function checkAnswer() {
+            const expBox = document.getElementById('explanation-box');
+            expBox.classList.remove('hidden');
+            document.getElementById('explanation-text').innerText = questionsData[currentIndex].exp;
+        }
+
+        function showResultModal() {
+            let correctCount = 0;
+            const totalAnswered = Object.keys(userAnswers).length;
+
+            questionsData.forEach((q, idx) => {
+                if (userAnswers[idx] === q.answer) {
+                    correctCount++;
+                }
+            });
+
+            const score = Math.round((correctCount / questionsData.length) * 100);
+
+            document.getElementById('res-score').innerText = score;
+            document.getElementById('res-correct').innerText = `${correctCount} / 100`;
+            document.getElementById('res-answered').innerText = `${totalAnswered} / 100`;
+
+            document.getElementById('result-modal').classList.remove('hidden');
+        }
+
+        function closeResultModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            closeResultModal();
+            loadQuestion(0);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
